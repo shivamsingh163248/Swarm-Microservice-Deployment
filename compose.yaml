@@ -1,0 +1,119 @@
+services:
+  vote:
+    image: swarm-voting-vote:1.0
+    build: ./vote
+    environment:
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "5000:5000"
+    networks:
+      - voting
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:5000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+
+  worker:
+    image: swarm-voting-worker:1.0
+    build: ./worker
+    environment:
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgres://votes:votes@db:5432/votes
+    networks:
+      - voting
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+
+  result:
+    image: swarm-voting-result:1.0
+    build: ./result
+    environment:
+      DATABASE_URL: postgres://votes:votes@db:5432/votes
+    ports:
+      - "5001:5001"
+    networks:
+      - voting
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:5001/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - voting
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: votes
+      POSTGRES_USER: votes
+      POSTGRES_PASSWORD: votes
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - voting
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U votes -d votes"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  visualizer:
+    image: dockersamples/visualizer:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - voting
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+networks:
+  voting:
+    driver: overlay
+    attachable: true
+
+volumes:
+  postgres_data:

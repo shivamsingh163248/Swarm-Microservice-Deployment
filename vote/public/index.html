@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f1e8">
+    <title>Pick a side | Swarm Voting</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="vote-shell">
+      <header class="topline"><span>SWARM VOTING</span><span>LIVE POLL / 001</span></header>
+      <section class="intro">
+        <p class="eyebrow">THE GREAT HOUSEHOLD DEBATE</p>
+        <h1>Which makes<br>the better <i>roommate?</i></h1>
+        <p class="subhead">One small vote. A surprisingly important question.</p>
+      </section>
+      <section class="choices" aria-label="Choose your vote">
+        <button class="choice choice-cats" data-choice="cats" type="button">
+          <span class="choice-index">01 / FELINE</span>
+          <span class="choice-emoji" aria-hidden="true">🐈</span>
+          <span class="choice-name">Cats</span>
+          <span class="choice-note">Quietly in charge.</span>
+        </button>
+        <button class="choice choice-dogs" data-choice="dogs" type="button">
+          <span class="choice-index">02 / CANINE</span>
+          <span class="choice-emoji" aria-hidden="true">🐕</span>
+          <span class="choice-name">Dogs</span>
+          <span class="choice-note">Never met a stranger.</span>
+        </button>
+      </section>
+      <p class="feedback" role="status" aria-live="polite">Cast your vote to see the results.</p>
+      <footer><span>VOTE SERVICE <b>●</b> READY</span><a href="http://localhost:5001">VIEW RESULTS ↗</a></footer>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
